@@ -73,13 +73,15 @@ class ColorizedLetter {
     }
 
     isGreen() {
-        return this.color==='GREEN';
+        return this.color === 'GREEN';
     }
+
     isOrange() {
-        return this.color==='ORANGE';
+        return this.color === 'ORANGE';
     }
+
     isGrey() {
-        return this.color==='GREY';
+        return this.color === 'GREY';
     }
 }
 
@@ -87,11 +89,11 @@ class ColorizedWord extends Word {
 
 
     private grey: boolean;
-    private colorizedletters: Map<Letter, Color>;
+    private colorizedLetters: Map<Letter, Color>;
 
     constructor(word: Word, colorizedletters: Map<Letter, Color>) {
         super(word.getWord());
-        this.colorizedletters = colorizedletters
+        this.colorizedLetters = colorizedletters
 
 
     }
@@ -100,10 +102,14 @@ class ColorizedWord extends Word {
         return new ColorizedWord(word, colorizedLetters)
     }
 
+    colorsAsarray(): Color[] {
+
+        return Array.from(this.colorizedLetters.entries()).map(letter => letter[1])
+    }
 
     isGrey(): boolean {
         let isGrey = true
-        this.colorizedletters.forEach((color: Color) => {
+        this.colorizedLetters.forEach((color: Color) => {
             if (color !== 'GREY') isGrey = false
         });
         return isGrey;
@@ -112,26 +118,26 @@ class ColorizedWord extends Word {
 
     isGreen() {
         let isGreen = true
-        this.colorizedletters.forEach((color: Color) => {
+        this.colorizedLetters.forEach((color: Color) => {
             if (color !== 'GREEN') isGreen = false
         });
         return isGreen;
     }
-    //todo refactor object entries
+
+
     //todo matching letters also seen as misplaced
     firstLetter(): ColorizedLetter {
         const firstLetter = this.getLetter(0);
-        return new ColorizedLetter(firstLetter,this.colorizedletters.entries().next().value[1]);
+        return new ColorizedLetter(firstLetter, this.colorsAsarray()[0]);
     }
 
     secondLetter(): ColorizedLetter {
         const secondLetter = this.getLetter(1);
-        this.colorizedletters.entries().next()
-        return new ColorizedLetter(secondLetter,this.colorizedletters.entries().next().value[1]);
+        return new ColorizedLetter(secondLetter, this.colorsAsarray()[1]);
     }
 
     private getLetter(number: number): Letter {
-        return this.getLetters()[0];
+        return this.getLetters()[number];
     }
 
 }
