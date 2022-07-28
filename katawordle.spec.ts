@@ -219,7 +219,7 @@ describe('test wordle', function () {
     });
     it('should return third letter not match and is grey ', function () {
         const answerWord: Word = new Word("abcde");
-        const proposalWord: Word = new Word("acade");
+        const proposalWord: Word = new Word("acaaa");
         expect(thirdLetterIsGrey(coloriseWord(answerWord, proposalWord))).toBe(true);
     });
 });
