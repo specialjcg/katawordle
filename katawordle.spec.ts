@@ -88,7 +88,6 @@ class ColorizedLetter {
 class ColorizedWord extends Word {
 
 
-    private grey: boolean;
     private colorizedLetters: Map<Letter, Color>;
 
     constructor(word: Word, colorizedletters: Map<Letter, Color>) {
@@ -136,18 +135,37 @@ class ColorizedWord extends Word {
         return new ColorizedLetter(secondLetter, this.colorsAsarray()[1]);
     }
 
+    thirdLetter(): ColorizedLetter {
+        const thirdLetter = this.getLetter(2);
+        return new ColorizedLetter(thirdLetter, this.colorsAsarray()[2]);
+    }
+
     private getLetter(number: number): Letter {
         return this.getLetters()[number];
     }
-
 }
 
 
-const colorizeLetter = (letter: Letter, i: number, answerWord: Word, colorizedLetters: Map<Letter, Color>) => {
-    if (letter.equals(answerWord.getLetters()[i])) {
+function isMatching(letter: Letter, answerWord: Word, position: number) {
+    return letter.equals(answerWord.getLetters()[position]);
+}
+
+const hasMatchedBefore = (answerWord: Word, letter: Letter, position: number): boolean => {
+    for (const beforeLetter of answerWord.getLetters().slice(0,position)) {
+        if (beforeLetter.equals(letter)) return true
+    }
+    return false;
+};
+
+const colorizeLetter = (letter: Letter, position: number, answerWord: Word, colorizedLetters: Map<Letter, Color>) => {
+    if (isMatching(letter, answerWord, position)) {
         colorizedLetters.set(letter, 'GREEN')
     } else if (answerWord.contains(letter)) {
-        colorizedLetters.set(letter, 'ORANGE')
+        if (hasMatchedBefore(answerWord, letter, position)) {
+            colorizedLetters.set(letter, 'GREY')
+        } else {
+            colorizedLetters.set(letter, 'ORANGE')
+        }
     } else {
         colorizedLetters.set(letter, 'GREY')
     }
@@ -165,6 +183,8 @@ const coloriseWord = (answerWord: Word, proposalWord: Word): ColorizedWord => {
 
 const firstLetterIsGreen = (colorizedWord: ColorizedWord): boolean => colorizedWord.firstLetter().isGreen();
 const secondLetterIsOrange = (colorizedWord: ColorizedWord): boolean => colorizedWord.secondLetter().isOrange();
+
+const thirdLetterIsGrey = (colorizedWord: ColorizedWord): boolean => colorizedWord.thirdLetter().isGrey();
 
 describe('test wordle', function () {
     it('should return no matches and is grey', function () {
@@ -196,5 +216,10 @@ describe('test wordle', function () {
         const answerWord: Word = new Word("abcde");
         const proposalWord: Word = new Word("acaaa");
         expect(secondLetterIsOrange(coloriseWord(answerWord, proposalWord))).toBe(true);
+    });
+    it('should return third letter not match and is grey ', function () {
+        const answerWord: Word = new Word("abcde");
+        const proposalWord: Word = new Word("acade");
+        expect(thirdLetterIsGrey(coloriseWord(answerWord, proposalWord))).toBe(true);
     });
 });

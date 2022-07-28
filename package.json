@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --runInBand --detectOpenHandles --no-cache --config ./jest.config.js"
+    "test": "jest --watchAll --runInBand --detectOpenHandles --no-cache --config ./jest.config.js"
   },
   "keywords": [],
   "author": "",
