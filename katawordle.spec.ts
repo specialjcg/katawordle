@@ -222,4 +222,5 @@ describe('test wordle', function () {
         const proposalWord: Word = new Word("acaaa");
         expect(thirdLetterIsGrey(coloriseWord(answerWord, proposalWord))).toBe(true);
     });
+    //todo refacto or make fourth letter or grey when lot of letters after
 });
