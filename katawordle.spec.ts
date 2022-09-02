@@ -143,6 +143,16 @@ class ColorizedWord extends Word {
     private getLetter(number: number): Letter {
         return this.getLetters()[number];
     }
+
+    fourthLetter() : ColorizedLetter {
+        const fourthLetter = this.getLetter(3);
+        return new ColorizedLetter(fourthLetter, this.colorsAsarray()[3]);
+    }
+
+    lastLetter(): ColorizedLetter {
+        const lastLetter = this.getLetter(4);
+        return new ColorizedLetter(lastLetter, this.colorsAsarray()[4]);
+    }
 }
 
 
@@ -186,6 +196,14 @@ const secondLetterIsOrange = (colorizedWord: ColorizedWord): boolean => colorize
 
 const thirdLetterIsGrey = (colorizedWord: ColorizedWord): boolean => colorizedWord.thirdLetter().isGrey();
 
+const fourthLetterIsGrey=(colorizedWord: ColorizedWord) : boolean => colorizedWord.fourthLetter().isGrey();
+
+const lastLetterIsGrey = (colorizedWord: ColorizedWord): boolean => colorizedWord.lastLetter().isGrey();
+
+const thirdLetterIsOrange=(colorizedWord: ColorizedWord):boolean=> colorizedWord.thirdLetter().isOrange();
+
+
+
 describe('test wordle', function () {
     it('should return no matches and is grey', function () {
         const answerWord: Word = new Word("aaaaa");
@@ -222,5 +240,30 @@ describe('test wordle', function () {
         const proposalWord: Word = new Word("acaaa");
         expect(thirdLetterIsGrey(coloriseWord(answerWord, proposalWord))).toBe(true);
     });
-    //todo refacto or make fourth letter or grey when lot of letters after
+    it('should return fourth letter not match and is grey ', function () {
+        const answerWord: Word = new Word("abcde");
+        const proposalWord: Word = new Word("acaaa");
+        expect(fourthLetterIsGrey(coloriseWord(answerWord, proposalWord))).toBe(true);
+    });
+    it('should return third letter not match and is grey with two instances of a in answerWord', function () {
+        const answerWord: Word = new Word("abcae");
+        const proposalWord: Word = new Word("acaaa");
+        expect(thirdLetterIsGrey(coloriseWord(answerWord, proposalWord))).toBe(true);
+    });
+    it('should return last letter not match and is grey', function () {
+        const answerWord: Word = new Word("abcae");
+        const proposalWord: Word = new Word("acaaa");
+        expect(lastLetterIsGrey(coloriseWord(answerWord, proposalWord))).toBe(true);
+    });
+    it('should return third letter misplaced and is orange', function () {
+        const answerWord: Word = new Word("abcae");
+        const proposalWord: Word = new Word("abeaa");
+        expect(thirdLetterIsOrange(coloriseWord(answerWord, proposalWord))).toBe(true);
+    });
+    it('should return last letter is green', function () {
+        const answerWord: Word = new Word("abcee");
+        const proposalWord: Word = new Word("abece");
+        expect(lastLetterIsGreen(coloriseWord(answerWord, proposalWord))).toBe(true);
+    });
+    //todo refacto and lastletterGreen
 });
