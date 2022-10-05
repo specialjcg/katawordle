@@ -203,6 +203,7 @@ const lastLetterIsGrey = (colorizedWord: ColorizedWord): boolean => colorizedWor
 const thirdLetterIsOrange=(colorizedWord: ColorizedWord):boolean=> colorizedWord.thirdLetter().isOrange();
 
 
+const lastLetterIsGreen = (colorizedWord: ColorizedWord): boolean => colorizedWord.lastLetter().isGreen();
 
 describe('test wordle', function () {
     it('should return no matches and is grey', function () {
