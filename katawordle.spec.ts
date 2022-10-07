@@ -1,7 +1,6 @@
 class Word {
     private word: string;
     private letters: Letter[] = [];
-    private colors: Color[] = []
 
     constructor(word: string) {
         this.word = word;
@@ -100,6 +99,41 @@ class ColorizedWord extends Word {
     static build(word: Word, colorizedLetters: Map<Letter, Color>): ColorizedWord {
         return new ColorizedWord(word, colorizedLetters)
     }
+    static colorizedWordFromProposal (answerWord: Word, proposalWord: Word): ColorizedWord  {
+        let colorizedLetters = new Map<Letter, Color>();
+        proposalWord.getLetters().forEach((letter,index) =>
+            ColorizedWord.colorizeLetter(letter,index,answerWord,colorizedLetters))
+
+        return ColorizedWord.build(proposalWord, colorizedLetters);
+
+    };
+
+    private static colorizeLetter = (letter: Letter, positionInsideWord: number, answerWord: Word, colorizedLetters: Map<Letter, Color>) => {
+        if (ColorizedWord.isMatching(letter, answerWord, positionInsideWord)) {
+            colorizedLetters.set(letter, 'GREEN')
+        } else if (answerWord.contains(letter)) {
+            ColorizedWord.handleMatchedBefore(answerWord, letter, positionInsideWord, colorizedLetters);
+        } else {
+            colorizedLetters.set(letter, 'GREY')
+        }
+    };
+
+    private static handleMatchedBefore(answerWord: Word, letter: Letter, position: number, colorizedLetters: Map<Letter, Color>) {
+        if (ColorizedWord.hasMatchedBefore(answerWord, letter, position)) {
+            colorizedLetters.set(letter, 'GREY')
+        } else {
+            colorizedLetters.set(letter, 'ORANGE')
+        }
+    }
+
+    private static isMatching = (letter: Letter, answerWord: Word, position: number) => letter.equals(answerWord.getLetters()[position]);
+
+    private static  hasMatchedBefore = (answerWord: Word, letter: Letter, position: number): boolean => {
+        for (const beforeLetter of answerWord.getLetters().slice(0,position)) {
+            if (beforeLetter.equals(letter)) return true
+        }
+        return false;
+    };
 
     colorsAsarray(): Color[] {
 
@@ -124,7 +158,6 @@ class ColorizedWord extends Word {
     }
 
 
-    //todo matching letters also seen as misplaced
     firstLetter(): ColorizedLetter {
         const firstLetter = this.getLetter(0);
         return new ColorizedLetter(firstLetter, this.colorsAsarray()[0]);
@@ -156,40 +189,9 @@ class ColorizedWord extends Word {
 }
 
 
-function isMatching(letter: Letter, answerWord: Word, position: number) {
-    return letter.equals(answerWord.getLetters()[position]);
-}
 
-const hasMatchedBefore = (answerWord: Word, letter: Letter, position: number): boolean => {
-    for (const beforeLetter of answerWord.getLetters().slice(0,position)) {
-        if (beforeLetter.equals(letter)) return true
-    }
-    return false;
-};
 
-const colorizeLetter = (letter: Letter, position: number, answerWord: Word, colorizedLetters: Map<Letter, Color>) => {
-    if (isMatching(letter, answerWord, position)) {
-        colorizedLetters.set(letter, 'GREEN')
-    } else if (answerWord.contains(letter)) {
-        if (hasMatchedBefore(answerWord, letter, position)) {
-            colorizedLetters.set(letter, 'GREY')
-        } else {
-            colorizedLetters.set(letter, 'ORANGE')
-        }
-    } else {
-        colorizedLetters.set(letter, 'GREY')
-    }
-};
 
-const coloriseWord = (answerWord: Word, proposalWord: Word): ColorizedWord => {
-    let colorizedLetters = new Map<Letter, Color>();
-    for (let i = 0; i < proposalWord.getWord().length; i++) {
-        colorizeLetter(proposalWord.getLetters()[i], i, answerWord, colorizedLetters);
-    }
-
-    return ColorizedWord.build(proposalWord, colorizedLetters);
-
-};
 
 const firstLetterIsGreen = (colorizedWord: ColorizedWord): boolean => colorizedWord.firstLetter().isGreen();
 const secondLetterIsOrange = (colorizedWord: ColorizedWord): boolean => colorizedWord.secondLetter().isOrange();
@@ -209,62 +211,62 @@ describe('test wordle', function () {
     it('should return no matches and is grey', function () {
         const answerWord: Word = new Word("aaaaa");
         const proposalWord: Word = new Word("bbbbb");
-        expect(coloriseWord(answerWord, proposalWord).isGrey()).toBe(true);
+        expect(ColorizedWord.colorizedWordFromProposal(answerWord, proposalWord).isGrey()).toBe(true);
     });
     it('should return all matche letter and not grey ', function () {
         const answerWord: Word = new Word("aaaaa");
         const proposalWord: Word = new Word("aaaaa");
-        expect(coloriseWord(answerWord, proposalWord).isGrey()).toBe(false);
+        expect(ColorizedWord.colorizedWordFromProposal(answerWord, proposalWord).isGrey()).toBe(false);
     });
     it('should return one letter match and not grey ', function () {
         const answerWord: Word = new Word("aaaaa");
         const proposalWord: Word = new Word("abbbb");
-        expect(firstLetterIsGreen(coloriseWord(answerWord, proposalWord))).toBe(true);
+        expect(firstLetterIsGreen(ColorizedWord.colorizedWordFromProposal(answerWord, proposalWord))).toBe(true);
     });
     it('should return one letter match and word not grey ', function () {
         const answerWord: Word = new Word("aaaaa");
         const proposalWord: Word = new Word("abbbb");
-        expect(coloriseWord(answerWord, proposalWord).isGrey()).toBe(false);
+        expect(ColorizedWord.colorizedWordFromProposal(answerWord, proposalWord).isGrey()).toBe(false);
     });
     it('should return one letter match and word is green ', function () {
         const answerWord: Word = new Word("aaaaa");
         const proposalWord: Word = new Word("aaaaa");
-        expect(coloriseWord(answerWord, proposalWord).isGreen()).toBe(true);
+        expect(ColorizedWord.colorizedWordFromProposal(answerWord, proposalWord).isGreen()).toBe(true);
     });
     it('should return second letter misplaced and orange ', function () {
         const answerWord: Word = new Word("abcde");
         const proposalWord: Word = new Word("acaaa");
-        expect(secondLetterIsOrange(coloriseWord(answerWord, proposalWord))).toBe(true);
+        expect(secondLetterIsOrange(ColorizedWord.colorizedWordFromProposal(answerWord, proposalWord))).toBe(true);
     });
     it('should return third letter not match and is grey ', function () {
         const answerWord: Word = new Word("abcde");
         const proposalWord: Word = new Word("acaaa");
-        expect(thirdLetterIsGrey(coloriseWord(answerWord, proposalWord))).toBe(true);
+        expect(thirdLetterIsGrey(ColorizedWord.colorizedWordFromProposal(answerWord, proposalWord))).toBe(true);
     });
     it('should return fourth letter not match and is grey ', function () {
         const answerWord: Word = new Word("abcde");
         const proposalWord: Word = new Word("acaaa");
-        expect(fourthLetterIsGrey(coloriseWord(answerWord, proposalWord))).toBe(true);
+        expect(fourthLetterIsGrey(ColorizedWord.colorizedWordFromProposal(answerWord, proposalWord))).toBe(true);
     });
     it('should return third letter not match and is grey with two instances of a in answerWord', function () {
         const answerWord: Word = new Word("abcae");
         const proposalWord: Word = new Word("acaaa");
-        expect(thirdLetterIsGrey(coloriseWord(answerWord, proposalWord))).toBe(true);
+        expect(thirdLetterIsGrey(ColorizedWord.colorizedWordFromProposal(answerWord, proposalWord))).toBe(true);
     });
     it('should return last letter not match and is grey', function () {
         const answerWord: Word = new Word("abcae");
         const proposalWord: Word = new Word("acaaa");
-        expect(lastLetterIsGrey(coloriseWord(answerWord, proposalWord))).toBe(true);
+        expect(lastLetterIsGrey(ColorizedWord.colorizedWordFromProposal(answerWord, proposalWord))).toBe(true);
     });
     it('should return third letter misplaced and is orange', function () {
         const answerWord: Word = new Word("abcae");
         const proposalWord: Word = new Word("abeaa");
-        expect(thirdLetterIsOrange(coloriseWord(answerWord, proposalWord))).toBe(true);
+        expect(thirdLetterIsOrange(ColorizedWord.colorizedWordFromProposal(answerWord, proposalWord))).toBe(true);
     });
     it('should return last letter is green', function () {
         const answerWord: Word = new Word("abcee");
         const proposalWord: Word = new Word("abece");
-        expect(lastLetterIsGreen(coloriseWord(answerWord, proposalWord))).toBe(true);
+        expect(lastLetterIsGreen(ColorizedWord.colorizedWordFromProposal(answerWord, proposalWord))).toBe(true);
     });
     //todo refacto and lastletterGreen
 });
