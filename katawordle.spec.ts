@@ -117,7 +117,7 @@ class ColorizedWord extends Word {
             colorizedLetters.set(letter, 'GREY')
         }
     };
-
+//todo fix case of two exchange letters and for grey for next
     private static handleMatchedBefore(answerWord: Word, letter: Letter, position: number, colorizedLetters: Map<Letter, Color>) {
         if (ColorizedWord.hasMatchedBefore(answerWord, letter, position)) {
             colorizedLetters.set(letter, 'GREY')
@@ -185,6 +185,10 @@ class ColorizedWord extends Word {
     lastLetter(): ColorizedLetter {
         const lastLetter = this.getLetter(4);
         return new ColorizedLetter(lastLetter, this.colorsAsarray()[4]);
+    }
+
+    result():Color[] {
+        return this.colorsAsarray();
     }
 }
 
@@ -263,10 +267,20 @@ describe('test wordle', function () {
         const proposalWord: Word = new Word("abeaa");
         expect(thirdLetterIsOrange(ColorizedWord.colorizedWordFromProposal(answerWord, proposalWord))).toBe(true);
     });
+
     it('should return last letter is green', function () {
         const answerWord: Word = new Word("abcee");
         const proposalWord: Word = new Word("abece");
         expect(lastLetterIsGreen(ColorizedWord.colorizedWordFromProposal(answerWord, proposalWord))).toBe(true);
     });
-    //todo refacto and lastletterGreen
+    it('should return Orange for the two exchanged letters', function () {
+        const answerWord: Word = new Word("abcee");
+        const proposalWord: Word = new Word("abece");
+        expect(ColorizedWord.colorizedWordFromProposal(answerWord, proposalWord).result()).toBe(["GREEN", "GREEN","ORANGE", "ORANGE","GREEN"]);
+    });
+    it('should return Orange for the two exchanged letters and Grey for next occurences', function () {
+        const answerWord: Word = new Word("abcee");
+        const proposalWord: Word = new Word("abecc");
+        expect(ColorizedWord.colorizedWordFromProposal(answerWord, proposalWord).result()).toBe(["GREEN", "GREEN","ORANGE", "ORANGE","GREY"]);
+    });
 });
